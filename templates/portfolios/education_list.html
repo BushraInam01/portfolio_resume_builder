@@ -1,0 +1,69 @@
+
+{% extends "portfolios/base.html" %}
+
+{% block title %}My Education{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>My Education</h1>
+
+    <p>Manage your educational background.</p>
+
+    <div class="actions">
+        <a href="{% url 'portfolios:education_create' %}">
+            Add Education
+        </a>
+
+        <a href="{% url 'portfolios:dashboard' %}" class="secondary">
+            Dashboard
+        </a>
+    </div>
+
+    {% if educations %}
+        {% for education in educations %}
+            <hr>
+
+            <h3>{{ education.degree }}</h3>
+
+            <p><strong>Institution:</strong> {{ education.institution }}</p>
+
+            <p>
+                <strong>Field of Study:</strong>
+                {{ education.field_of_study|default:"Not specified" }}
+            </p>
+
+            <p>
+                <strong>Duration:</strong>
+                {{ education.start_date|date:"M Y" }}
+                -
+                {% if education.is_current %}
+                    Present
+                {% elif education.end_date %}
+                    {{ education.end_date|date:"M Y" }}
+                {% else %}
+                    Not specified
+                {% endif %}
+            </p>
+
+            {% if education.description %}
+                <p>{{ education.description }}</p>
+            {% endif %}
+
+            <div class="actions">
+                <a href="{% url 'portfolios:education_update' education.pk %}">
+                    Edit
+                </a>
+
+                <a
+                    href="{% url 'portfolios:education_delete' education.pk %}"
+                    class="secondary"
+                >
+                    Delete
+                </a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No education records added yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

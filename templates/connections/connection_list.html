@@ -1,0 +1,96 @@
+
+{% extends "portfolios/base.html" %}
+
+{% block title %}My Connections{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <h1>My Connections</h1>
+    <p>Manage your professional connections.</p>
+</div>
+
+<div class="card">
+    <h2>My Connections ({{ connections|length }})</h2>
+
+    {% for connection in connections %}
+        <div class="connection-item">
+            {% if connection.requester == request.user %}
+                <strong>{{ connection.receiver.portfolio.full_name|default:connection.receiver.email }}</strong>
+            {% else %}
+                <strong>{{ connection.requester.portfolio.full_name|default:connection.requester.email }}</strong>
+            {% endif %}
+
+            <form method="post"
+                  action="{% url 'connections:request_action' connection.id 'remove' %}">
+                {% csrf_token %}
+                <button type="submit">Remove Connection</button>
+            </form>
+        </div>
+    {% empty %}
+        <p>You don't have any connections yet.</p>
+    {% endfor %}
+</div>
+
+<div class="card">
+    <h2>Received Requests ({{ received_requests|length }})</h2>
+
+    {% for connection in received_requests %}
+        <div class="connection-item">
+            <strong>{{ connection.requester.portfolio.full_name|default:connection.requester.email }}</strong>
+
+            <form method="post"
+                  action="{% url 'connections:request_action' connection.id 'accept' %}">
+                {% csrf_token %}
+                <button type="submit">Accept</button>
+            </form>
+
+            <form method="post"
+                  action="{% url 'connections:request_action' connection.id 'reject' %}">
+                {% csrf_token %}
+                <button type="submit">Reject</button>
+            </form>
+        </div>
+    {% empty %}
+        <p>No incoming requests.</p>
+    {% endfor %}
+</div>
+
+<div class="card">
+    <h2>Sent Requests ({{ sent_requests|length }})</h2>
+
+    {% for connection in sent_requests %}
+        <div class="connection-item">
+            <strong>{{ connection.receiver.portfolio.full_name|default:connection.receiver.email }}</strong>
+
+            <form method="post"
+                  action="{% url 'connections:request_action' connection.id 'cancel' %}">
+                {% csrf_token %}
+                <button type="submit">Cancel Request</button>
+            </form>
+        </div>
+    {% empty %}
+        <p>You haven't sent any requests.</p>
+    {% endfor %}
+</div>
+
+<div class="card">
+    <h2>Discover People</h2>
+
+    {% for user in discoverable_users %}
+        <div class="connection-item">
+            <strong>{{ user.portfolio.full_name|default:user.email }}</strong>
+            <p>{{ user.portfolio.professional_title }}</p>
+
+            <form method="post"
+                  action="{% url 'connections:send_request' user.id %}">
+                {% csrf_token %}
+                <button type="submit">Connect</button>
+            </form>
+        </div>
+    {% empty %}
+        <p>No public portfolios are available right now.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

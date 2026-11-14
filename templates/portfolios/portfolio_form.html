@@ -1,0 +1,44 @@
+
+{% extends "portfolios/base.html" %}
+
+{% block title %}
+    {% if object %}Edit Portfolio{% else %}Create Portfolio{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="card">
+
+    <h1>
+        {% if object %}
+            Edit Your Portfolio
+        {% else %}
+            Create Your Portfolio
+        {% endif %}
+    </h1>
+
+    <p>Enter your professional information below.</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <div class="actions">
+            <button type="submit">
+                {% if object %}
+                    Save Changes
+                {% else %}
+                    Create Portfolio
+                {% endif %}
+            </button>
+
+            <a href="{% url 'portfolios:dashboard' %}" class="secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

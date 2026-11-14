@@ -1,0 +1,36 @@
+{% extends "portfolios/base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <h1>
+        {% if object %}
+            Edit Project
+        {% else %}
+            Add New Project
+        {% endif %}
+    </h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">
+            {% if object %}
+                Save Changes
+            {% else %}
+                Add Project
+            {% endif %}
+        </button>
+
+        <a href="{% url 'portfolios:project_list' %}">
+            Cancel
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,77 @@
+
+{% extends "portfolios/base.html" %}
+
+{% block title %}My Experience{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>My Work Experience</h1>
+
+    <p>Manage your professional experience.</p>
+
+    <div class="actions">
+        <a href="{% url 'portfolios:experience_create' %}">
+            Add Experience
+        </a>
+
+        <a href="{% url 'portfolios:dashboard' %}" class="secondary">
+            Dashboard
+        </a>
+    </div>
+
+    {% if experiences %}
+        {% for experience in experiences %}
+            <hr>
+
+            <h3>{{ experience.position }}</h3>
+
+            <p>
+                <strong>Company:</strong>
+                {{ experience.company }}
+            </p>
+
+            <p>
+                <strong>Employment Type:</strong>
+                {{ experience.get_employment_type_display|default:"Not specified" }}
+            </p>
+
+            <p>
+                <strong>Location:</strong>
+                {{ experience.location|default:"Not specified" }}
+            </p>
+
+            <p>
+                <strong>Duration:</strong>
+                {{ experience.start_date|date:"M Y" }}
+                -
+                {% if experience.is_current %}
+                    Present
+                {% elif experience.end_date %}
+                    {{ experience.end_date|date:"M Y" }}
+                {% else %}
+                    Not specified
+                {% endif %}
+            </p>
+
+            {% if experience.description %}
+                <p>{{ experience.description }}</p>
+            {% endif %}
+
+            <div class="actions">
+                <a href="{% url 'portfolios:experience_update' experience.pk %}">
+                    Edit
+                </a>
+
+                <a
+                    href="{% url 'portfolios:experience_delete' experience.pk %}"
+                    class="secondary"
+                >
+                    Delete
+                </a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No work experience added yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

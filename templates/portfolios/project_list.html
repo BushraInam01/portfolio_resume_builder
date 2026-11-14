@@ -1,0 +1,90 @@
+{% extends "portfolios/base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <h1>My Projects</h1>
+
+    <p>Manage your portfolio projects here.</p>
+
+    <a href="{% url 'portfolios:project_create' %}">
+        Add New Project
+    </a>
+
+    <hr>
+
+    {% for project in projects %}
+
+        <div class="project-card">
+
+            <h2>{{ project.title }}</h2>
+
+            <p>{{ project.description }}</p>
+
+            {% if project.technologies %}
+                <p>
+                    <strong>Technologies:</strong>
+                    {{ project.technologies }}
+                </p>
+            {% endif %}
+
+            {% if project.project_url %}
+                <p>
+                    <strong>Project URL:</strong>
+                    <a href="{{ project.project_url }}" target="_blank" rel="noopener noreferrer">
+                        Visit Project
+                    </a>
+                </p>
+            {% endif %}
+
+            {% if project.source_code_url %}
+                <p>
+                    <strong>Source Code:</strong>
+                    <a href="{{ project.source_code_url }}" target="_blank" rel="noopener noreferrer">
+                        View Code
+                    </a>
+                </p>
+            {% endif %}
+
+            {% if project.start_date %}
+                <p>
+                    <strong>Start Date:</strong>
+                    {{ project.start_date }}
+                </p>
+            {% endif %}
+
+            {% if project.end_date %}
+                <p>
+                    <strong>End Date:</strong>
+                    {{ project.end_date }}
+                </p>
+            {% endif %}
+
+            <a href="{% url 'portfolios:project_update' project.pk %}">
+                Edit
+            </a>
+
+            |
+
+            <a href="{% url 'portfolios:project_delete' project.pk %}">
+                Delete
+            </a>
+
+        </div>
+
+        <hr>
+
+    {% empty %}
+
+        <p>No projects added yet.</p>
+
+    {% endfor %}
+
+    <a href="{% url 'portfolios:dashboard' %}">
+        Back to Dashboard
+    </a>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,554 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Portfolio Builder{% endblock %}</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #263238;
+        }
+
+        header {
+            background: #263547;
+            color: white;
+            padding: 20px 8%;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        main {
+            max-width: 1050px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #263547;
+        }
+
+        h2, h3 {
+            color: #263547;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        a, button {
+            display: inline-block;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+
+        a:hover, button:hover {
+            background: #1d4ed8;
+        }
+
+        .secondary {
+            background: #64748b;
+        }
+
+        .form-field {
+            margin-bottom: 16px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        .errorlist {
+            color: #dc2626;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .message {
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .message-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .message-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .message-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+        .message-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+
+        /* Dashboard Styling */
+
+        .dashboard-subtitle {
+            color: #64748b;
+            margin-top: -8px;
+            margin-bottom: 25px;
+        }
+
+        .dashboard-profile {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 22px;
+            margin: 20px 0;
+        }
+
+        .dashboard-profile h2 {
+            margin-top: 0;
+        }
+
+        .visibility {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .visibility-public {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .visibility-private {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .analytics-card {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0 30px;
+        }
+
+        .analytics-card h2 {
+            margin-top: 0;
+        }
+
+        .analytics-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1d4ed8;
+            margin: 5px 0;
+        }
+
+        .dashboard-section {
+            margin-top: 30px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .dashboard-link {
+            display: flex;
+            align-items: center;
+            min-height: 65px;
+            padding: 16px;
+            background: white;
+            color: #263547;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            font-weight: 600;
+        }
+
+        .dashboard-link:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+        }
+
+        .public-link {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .public-link:hover {
+            background: #1d4ed8;
+            color: white;
+        }
+
+        .resume-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 22px;
+            margin-top: 30px;
+        }
+
+
+        /* Public Portfolio Styling */
+
+        .public-portfolio {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .public-profile-card,
+        .public-section {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .public-profile-top {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .public-avatar {
+            width: 76px;
+            height: 76px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: #dbeafe;
+            color: #1e3a8a;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .public-profile-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .public-profile-heading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .public-profile-heading h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .public-status {
+            background: #dcfce7;
+            color: #166534;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .public-profile-info h3 {
+            margin: 8px 0;
+            color: #475569;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .public-location {
+            color: #64748b;
+            margin: 6px 0 0;
+            font-size: 14px;
+        }
+
+        .public-profile-links,
+        .public-project-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .public-profile-links a,
+        .public-project-links a {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+            padding: 9px 15px;
+            border-radius: 7px;
+            font-weight: 600;
+        }
+
+        .public-profile-links a:hover,
+        .public-project-links a:hover {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .public-section h2 {
+            margin: 0 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            color: #172554;
+            font-size: 21px;
+        }
+
+        .public-section-content {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .public-section-content > p {
+            margin: 0;
+        }
+
+        .public-item {
+            display: flex;
+            gap: 16px;
+        }
+
+        .public-item-accent {
+            width: 4px;
+            flex-shrink: 0;
+            background: #2563eb;
+            border-radius: 5px;
+        }
+
+        .public-item-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .public-item-details h3,
+        .public-project-card h3 {
+            margin: 0 0 8px;
+            color: #263547;
+            font-size: 17px;
+        }
+
+        .public-item-details p,
+        .public-project-card p {
+            margin: 6px 0;
+        }
+
+        .public-item-subtitle {
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .public-item-meta {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .public-project-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .public-skills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .public-skill-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .public-skill-card h3 {
+            margin: 0 0 8px;
+            color: #263547;
+            font-size: 17px;
+        }
+
+        .public-skill-card p {
+            margin: 7px 0;
+        }
+
+        .public-endorsements {
+            color: #2563eb;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .public-skill-card form {
+            margin-top: 12px;
+        }
+
+        .public-skill-card .public-endorse-button {
+            background: #2563eb;
+            color: white;
+            font-weight: 600;
+        }
+
+        .public-skill-card .public-endorse-button:hover {
+            background: #1d4ed8;
+        }
+
+        .public-empty {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .public-portfolio-footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            padding: 10px;
+        }
+
+
+        /* Responsive Styling */
+
+        @media (max-width: 600px) {
+            header {
+                padding: 18px 20px;
+            }
+
+            main {
+                margin: 20px auto;
+                padding: 0 14px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions a {
+                width: 100%;
+                text-align: center;
+            }
+
+            .public-profile-card,
+            .public-section {
+                padding: 20px;
+            }
+
+            .public-profile-top {
+                align-items: flex-start;
+                gap: 14px;
+            }
+
+            .public-avatar {
+                width: 58px;
+                height: 58px;
+                font-size: 24px;
+            }
+
+            .public-profile-heading h1 {
+                font-size: 22px;
+            }
+
+            .public-skills-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .public-profile-links a {
+                flex: 1;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>Portfolio & Resume Builder</h2>
+</header>
+
+<main>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message message-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+<script src="https://unpkg.com/htmx.org@2.0.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+
+{% block extra_js %}
+{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,143 @@
+{% extends "portfolios/base.html" %}
+
+{% block title %}My Portfolio Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="card">
+
+    <h1>My Portfolio Dashboard</h1>
+
+    <p class="dashboard-subtitle">
+        Welcome back! Manage your professional portfolio from here.
+    </p>
+
+    {% if portfolio %}
+
+        <div class="dashboard-profile">
+
+            <h2>{{ portfolio.title }}</h2>
+
+            <p>
+                <strong>Full Name:</strong>
+                {{ portfolio.full_name|default:"Not added yet" }}
+            </p>
+
+            <p>
+                <strong>Professional Title:</strong>
+                {{ portfolio.professional_title|default:"Not added yet" }}
+            </p>
+
+            <p>
+                <strong>Portfolio URL Slug:</strong>
+                {{ portfolio.slug }}
+            </p>
+
+            <p>
+                <strong>Visibility:</strong>
+
+                {% if portfolio.is_public %}
+                    <span class="visibility visibility-public">
+                        Public
+                    </span>
+                {% else %}
+                    <span class="visibility visibility-private">
+                        Private
+                    </span>
+                {% endif %}
+            </p>
+
+        </div>
+
+        <div class="analytics-card">
+
+            <h2>Portfolio Analytics</h2>
+
+            <p class="analytics-number">
+                {{ portfolio.view_count }}
+            </p>
+
+            <p>Total Portfolio Views</p>
+
+        </div>
+
+        <div class="dashboard-section">
+
+            <h2>Portfolio Management</h2>
+
+            <div class="dashboard-grid">
+
+                {% if portfolio.is_public %}
+                    <a class="dashboard-link public-link"
+                       href="{% url 'portfolios:public_detail' slug=portfolio.slug %}">
+                        View Public Portfolio
+                    </a>
+                {% endif %}
+
+                <a class="dashboard-link"
+                   href="{% url 'portfolios:portfolio_update' %}">
+                    Edit Portfolio
+                </a>
+
+                <a class="dashboard-link"
+                   href="{% url 'portfolios:education_list' %}">
+                    Manage Education
+                </a>
+
+                <a class="dashboard-link"
+                   href="{% url 'portfolios:experience_list' %}">
+                    Manage Experience
+                </a>
+
+                <a class="dashboard-link"
+                   href="{% url 'portfolios:project_list' %}">
+                    Manage Projects
+                </a>
+
+                <a class="dashboard-link"
+                   href="{% url 'portfolios:skill_list' %}">
+                    Manage Skills
+                </a>
+
+                <a class="dashboard-link"
+                   href="{% url 'portfolios:section_order' %}">
+                    Arrange Portfolio Sections
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="resume-section">
+
+            <h2>Resume Management</h2>
+
+            <div class="dashboard-grid">
+
+                <a class="dashboard-link"
+                   href="{% url 'resumes:customize' %}">
+                    Customize Resume
+                </a>
+
+                <a class="dashboard-link"
+                   href="{% url 'resumes:preview' %}">
+                    Preview Resume
+                </a>
+
+            </div>
+
+        </div>
+
+    {% else %}
+
+        <p>You have not created your portfolio yet.</p>
+
+        <a href="{% url 'portfolios:portfolio_create' %}">
+            Create My Portfolio
+        </a>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "portfolios/base.html" %}
+
+{% block content %}
+
+<h1>
+    {% if object %}
+        Edit Skill
+    {% else %}
+        Add New Skill
+    {% endif %}
+</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        {% if object %}
+            Save Changes
+        {% else %}
+            Add Skill
+        {% endif %}
+    </button>
+
+    <a href="{% url 'portfolios:skill_list' %}"
+       style="margin-left: 15px;">
+        Cancel
+    </a>
+</form>
+
+{% endblock %}

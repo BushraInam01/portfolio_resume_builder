@@ -1,0 +1,128 @@
+
+{% extends "portfolios/base.html" %}
+
+{% block title %}Arrange Portfolio Sections{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <h1>Arrange Portfolio Sections</h1>
+
+    <p>Drag and drop sections to change their display order.</p>
+
+    <form id="csrf-form" style="display: none;">
+        {% csrf_token %}
+    </form>
+
+    <ul id="section-list" style="list-style: none; padding: 0;">
+        {% for section in sections %}
+            <li
+                data-id="{{ section.id }}"
+                style="
+                    padding: 15px;
+                    margin-bottom: 10px;
+                    background: #f1f5f9;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 6px;
+                    cursor: grab;
+                    display: flex;
+                    justify-content: space-between;
+                "
+            >
+                <strong>
+                    ☰ {{ section.get_section_type_display }}
+                </strong>
+
+                <span>
+                    {% if section.is_visible %}
+                        Visible
+                    {% else %}
+                        Hidden
+                    {% endif %}
+                </span>
+            </li>
+        {% empty %}
+            <li>No sections available.</li>
+        {% endfor %}
+    </ul>
+
+    <p id="save-status" aria-live="polite"></p>
+
+    <a href="{% url 'portfolios:dashboard' %}">
+        Back to Dashboard
+    </a>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const sectionList = document.getElementById("section-list");
+    const saveStatus = document.getElementById("save-status");
+    const reorderUrl = "{% url 'portfolios:section_reorder' %}";
+
+    if (!sectionList || !saveStatus) {
+        return;
+    }
+
+    if (typeof Sortable === "undefined" || typeof htmx === "undefined") {
+        saveStatus.textContent = "Required JavaScript libraries could not load.";
+        return;
+    }
+
+    document.body.addEventListener("htmx:configRequest", function (event) {
+        const csrfInput = document.querySelector(
+            '#csrf-form input[name="csrfmiddlewaretoken"]'
+        );
+
+        if (csrfInput) {
+            event.detail.headers["X-CSRFToken"] = csrfInput.value;
+        }
+    });
+
+    document.body.addEventListener("htmx:afterRequest", function (event) {
+        if (event.detail.pathInfo.requestPath !== reorderUrl) {
+            return;
+        }
+
+        try {
+            const response = JSON.parse(event.detail.xhr.responseText);
+
+            if (event.detail.successful && response.success) {
+                saveStatus.textContent = response.message;
+            } else {
+                saveStatus.textContent =
+                    response.error || "Could not save section order.";
+            }
+        } catch (error) {
+            saveStatus.textContent = "An error occurred while saving the order.";
+        }
+    });
+
+    new Sortable(sectionList, {
+        animation: 150,
+        handle: "li",
+        ghostClass: "sortable-ghost",
+
+        onEnd: function () {
+            const sectionIds = Array.from(
+                sectionList.querySelectorAll("li[data-id]")
+            ).map(function (item) {
+                return Number(item.dataset.id);
+            });
+
+            saveStatus.textContent = "Saving order...";
+
+            htmx.ajax("POST", reorderUrl, {
+                source: sectionList,
+                values: {
+                    section_ids: JSON.stringify(sectionIds)
+                },
+                swap: "none"
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

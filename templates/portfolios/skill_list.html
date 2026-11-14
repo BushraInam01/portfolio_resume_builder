@@ -1,0 +1,24 @@
+{% extends "portfolios/base.html" %}
+
+{% block content %}
+<h1>My Skills</h1>
+
+<a href="{% url 'portfolios:skill_create' %}">Add New Skill</a>
+<a href="{% url 'portfolios:dashboard' %}">Back to Dashboard</a>
+
+<hr>
+
+{% for skill in skills %}
+    <div>
+        <h3>{{ skill.name }}</h3>
+        <p>Proficiency: {{ skill.get_proficiency_display }}</p>
+
+        <a href="{% url 'portfolios:skill_update' skill.pk %}">Edit</a>
+        <a href="{% url 'portfolios:skill_delete' skill.pk %}">Delete</a>
+    </div>
+    <hr>
+{% empty %}
+    <p>No skills added yet.</p>
+{% endfor %}
+
+{% endblock %}

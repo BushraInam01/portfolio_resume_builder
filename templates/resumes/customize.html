@@ -1,0 +1,67 @@
+
+{% extends "portfolios/base.html" %}
+
+{% block title %}Customize Resume{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Resume Customization</h1>
+        <p>Personalize your resume by selecting a theme and accent color.</p>
+    </div>
+
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="error-message">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.resume_theme.id_for_label }}">
+                    {{ form.resume_theme.label }}
+                </label>
+
+                {{ form.resume_theme }}
+
+                {% if form.resume_theme.help_text %}
+                    <small>{{ form.resume_theme.help_text }}</small>
+                {% endif %}
+
+                {% for error in form.resume_theme.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.accent_color.id_for_label }}">
+                    {{ form.accent_color.label }}
+                </label>
+
+                {{ form.accent_color }}
+
+                {% if form.accent_color.help_text %}
+                    <small>{{ form.accent_color.help_text }}</small>
+                {% endif %}
+
+                {% for error in form.accent_color.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    Save Customization
+                </button>
+
+                <a href="{% url 'portfolios:dashboard' %}" class="btn btn-secondary">
+                    Back to Dashboard
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

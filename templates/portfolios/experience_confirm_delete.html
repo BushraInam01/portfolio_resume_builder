@@ -1,0 +1,28 @@
+
+{% extends "portfolios/base.html" %}
+
+{% block title %}Delete Experience{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Delete Work Experience</h1>
+
+    <p>
+        Are you sure you want to delete
+        <strong>{{ object.position }}</strong>
+        at <strong>{{ object.company }}</strong>?
+    </p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="actions">
+            <button type="submit">Confirm Delete</button>
+
+            <a href="{% url 'portfolios:experience_list' %}" class="secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,260 @@
+
+{% extends "portfolios/base.html" %}
+
+{% block title %}{{ portfolio.full_name }} - Portfolio{% endblock %}
+
+{% block content %}
+
+<div class="public-portfolio">
+
+    <!-- Profile Card -->
+    <section class="public-profile-card">
+
+        <div class="public-profile-top">
+            <div class="public-avatar">
+                {{ portfolio.full_name|first|upper }}
+            </div>
+
+            <div class="public-profile-info">
+                <div class="public-profile-heading">
+                    <h1>{{ portfolio.full_name }}</h1>
+                    <span class="public-status">Public</span>
+                </div>
+
+                <h3>{{ portfolio.professional_title }}</h3>
+
+                {% if portfolio.location %}
+                    <p class="public-location">📍 {{ portfolio.location }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="public-profile-links">
+            {% if portfolio.linkedin_url %}
+                <a href="{{ portfolio.linkedin_url }}" target="_blank" rel="noopener noreferrer">
+                    LinkedIn ↗
+                </a>
+            {% endif %}
+
+            {% if portfolio.github_url %}
+                <a href="{{ portfolio.github_url }}" target="_blank" rel="noopener noreferrer">
+                    GitHub ↗
+                </a>
+            {% endif %}
+
+            {% if portfolio.website %}
+                <a href="{{ portfolio.website }}" target="_blank" rel="noopener noreferrer">
+                    Website ↗
+                </a>
+            {% endif %}
+        </div>
+
+    </section>
+
+
+    <!-- About Me -->
+    {% if portfolio.bio %}
+        <section class="public-section">
+            <h2>About Me</h2>
+            <div class="public-section-content">
+                <p>{{ portfolio.bio }}</p>
+            </div>
+        </section>
+    {% endif %}
+
+
+    <!-- Contact -->
+    {% if portfolio.phone %}
+        <section class="public-section">
+            <h2>Contact Information</h2>
+            <div class="public-section-content">
+                <p><strong>Phone:</strong> {{ portfolio.phone }}</p>
+            </div>
+        </section>
+    {% endif %}
+
+
+    <!-- Education -->
+    <section class="public-section">
+        <h2>Education</h2>
+
+        <div class="public-section-content">
+            {% for education in portfolio.educations.all %}
+                <div class="public-item">
+                    <div class="public-item-accent"></div>
+
+                    <div class="public-item-details">
+                        <h3>{{ education.degree }}</h3>
+                        <p class="public-item-subtitle">{{ education.institution }}</p>
+
+                        {% if education.field_of_study %}
+                            <p>{{ education.field_of_study }}</p>
+                        {% endif %}
+
+                        <p class="public-item-meta">
+                            {{ education.start_date|date:"M Y" }} -
+                            {% if education.is_current %}
+                                Present
+                            {% elif education.end_date %}
+                                {{ education.end_date|date:"M Y" }}
+                            {% else %}
+                                Not specified
+                            {% endif %}
+                        </p>
+
+                        {% if education.description %}
+                            <p>{{ education.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="public-empty">No education information added.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+
+    <!-- Experience -->
+    <section class="public-section">
+        <h2>Work Experience</h2>
+
+        <div class="public-section-content">
+            {% for experience in portfolio.experiences.all %}
+                <div class="public-item">
+                    <div class="public-item-accent"></div>
+
+                    <div class="public-item-details">
+                        <h3>{{ experience.position }}</h3>
+                        <p class="public-item-subtitle">{{ experience.company }}</p>
+
+                        {% if experience.employment_type %}
+                            <p class="public-item-meta">
+                                {{ experience.get_employment_type_display }}
+                            </p>
+                        {% endif %}
+
+                        {% if experience.location %}
+                            <p class="public-item-meta">{{ experience.location }}</p>
+                        {% endif %}
+
+                        <p class="public-item-meta">
+                            {{ experience.start_date|date:"M Y" }} -
+                            {% if experience.is_current %}
+                                Present
+                            {% elif experience.end_date %}
+                                {{ experience.end_date|date:"M Y" }}
+                            {% else %}
+                                Not specified
+                            {% endif %}
+                        </p>
+
+                        {% if experience.description %}
+                            <p>{{ experience.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="public-empty">No experience information added.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+
+    <!-- Projects -->
+    <section class="public-section">
+        <h2>Projects</h2>
+
+        <div class="public-section-content">
+            {% for project in portfolio.projects.all %}
+                <div class="public-project-card">
+                    <h3>{{ project.title }}</h3>
+
+                    {% if project.description %}
+                        <p>{{ project.description }}</p>
+                    {% endif %}
+
+                    {% if project.technologies %}
+                        <p class="public-item-meta">
+                            <strong>Technologies:</strong>
+                            {{ project.technologies }}
+                        </p>
+                    {% endif %}
+
+                    {% if project.start_date or project.end_date %}
+                        <p class="public-item-meta">
+                            <strong>Duration:</strong>
+                            {% if project.start_date %}
+                                {{ project.start_date|date:"M Y" }}
+                            {% endif %}
+                            -
+                            {% if project.end_date %}
+                                {{ project.end_date|date:"M Y" }}
+                            {% else %}
+                                Present
+                            {% endif %}
+                        </p>
+                    {% endif %}
+
+                    <div class="public-project-links">
+                        {% if project.project_url %}
+                            <a href="{{ project.project_url }}" target="_blank" rel="noopener noreferrer">
+                                View Project ↗
+                            </a>
+                        {% endif %}
+
+                        {% if project.source_code_url %}
+                            <a href="{{ project.source_code_url }}" target="_blank" rel="noopener noreferrer">
+                                Source Code ↗
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="public-empty">No projects added.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+
+    <!-- Skills -->
+    <section class="public-section">
+        <h2>Technical Skills</h2>
+
+        <div class="public-section-content">
+            <div class="public-skills-grid">
+                {% for skill in portfolio.skills.all %}
+                    <div class="public-skill-card">
+                        <h3>{{ skill.name }}</h3>
+
+                        <p class="public-item-meta">
+                            {{ skill.get_proficiency_display }}
+                        </p>
+
+                        <p class="public-endorsements">
+                            {{ skill.endorsements.count }} Endorsements
+                        </p>
+
+                        {% if can_endorse %}
+                            <form method="post"
+                                  action="{% url 'endorsements:endorse_skill' skill.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="public-endorse-button">
+                                    Endorse Skill
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p class="public-empty">No skills added.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <footer class="public-portfolio-footer">
+        Portfolio · Built with Django
+    </footer>
+
+</div>
+
+{% endblock %}

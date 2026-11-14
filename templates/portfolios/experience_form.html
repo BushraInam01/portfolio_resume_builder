@@ -1,0 +1,36 @@
+
+{% extends "portfolios/base.html" %}
+
+{% block title %}
+    {% if object %}Edit Experience{% else %}Add Experience{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>
+        {% if object %} 
+            Edit Work Experience
+        {% else %}
+            Add Work Experience
+        {% endif %}
+    </h1>
+
+    <p>Enter your professional experience details below.</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <div class="actions">
+            <button type="submit">
+                {% if object %}Save Changes{% else %}Add Experience{% endif %}
+            </button>
+
+            <a href="{% url 'portfolios:experience_list' %}" class="secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
