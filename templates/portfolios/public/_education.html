@@ -1,0 +1,38 @@
+    <!-- Education -->
+    <section class="public-section">
+        <h2>Education</h2>
+
+        <div class="public-section-content">
+            {% for education in portfolio.educations.all %}
+                <div class="public-item">
+                    <div class="public-item-accent"></div>
+
+                    <div class="public-item-details">
+                        <h3>{{ education.degree }}</h3>
+                        <p class="public-item-subtitle">{{ education.institution }}</p>
+
+                        {% if education.field_of_study %}
+                            <p>{{ education.field_of_study }}</p>
+                        {% endif %}
+
+                        <p class="public-item-meta">
+                            {{ education.start_date|date:"M Y" }} -
+                            {% if education.is_current %}
+                                Present
+                            {% elif education.end_date %}
+                                {{ education.end_date|date:"M Y" }}
+                            {% else %}
+                                Not specified
+                            {% endif %}
+                        </p>
+
+                        {% if education.description %}
+                            <p>{{ education.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="public-empty">No education information added.</p>
+            {% endfor %}
+        </div>
+    </section>

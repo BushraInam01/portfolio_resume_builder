@@ -30,7 +30,7 @@ Users can build their professional profiles, manage education and work experienc
   - Professional
 - Custom accent color selection
 - Drag-and-drop portfolio section ordering
-- Show or hide portfolio sections
+- Show or hide portfolio sections (applied to the public portfolio and the resume)
 
 ### Connections & Skill Endorsements
 - Send and manage connection requests
@@ -115,7 +115,16 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 5. Install Dependencies
+### 5. Install System Libraries (needed by WeasyPrint)
+
+PDF export needs the Pango library on your system. Without it,
+`import weasyprint` fails.
+
+- **Ubuntu / Debian:** `sudo apt install libpango-1.0-0 libpangoft2-1.0-0`
+- **macOS (Homebrew):** `brew install pango`
+- **Windows:** follow the [WeasyPrint install guide](https://doc.courtbouillon.org/weasyprint/stable/first_steps.html)
+
+### 5b. Install Python Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -124,6 +133,8 @@ pip install -r requirements.txt
 ### 6. Configure Environment Variables
 
 Set the Django environment variables before running the project.
+The `.env.example` file lists every variable the project reads. Django does
+not load `.env` files automatically, so export the values in your shell:
 
 ```bash
 export DJANGO_SECRET_KEY="your-secure-secret-key"
@@ -167,7 +178,7 @@ Run the complete test suite:
 python3 manage.py test
 ```
 
-The project passed **103 tests** during development verification.
+The test suite currently contains **111 tests**.
 
 Check Django configuration:
 

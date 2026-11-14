@@ -1402,3 +1402,154 @@ class PortfolioViewCounterTests(TestCase):
         self.portfolio.refresh_from_db()
 
         self.assertEqual(self.portfolio.view_count, 1)
+
+
+class SectionLayoutRenderingTests(TestCase):
+    """Section order and visibility must be applied to rendered pages."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="layout@example.com",
+            password="StrongPass123!",
+        )
+        self.other_user = User.objects.create_user(
+            email="layoutother@example.com",
+            password="StrongPass123!",
+        )
+        self.portfolio = Portfolio.objects.create(
+            user=self.user,
+            title="Layout Portfolio",
+            slug="layout-portfolio",
+            full_name="Layout Owner",
+            bio="Layout bio text",
+            is_public=True,
+        )
+        Skill.objects.create(portfolio=self.portfolio, name="Django")
+
+    def _set_order(self, *section_types):
+        for position, section_type in enumerate(section_types):
+            PortfolioSection.objects.update_or_create(
+                portfolio=self.portfolio,
+                section_type=section_type,
+                defaults={"sort_order": position, "is_visible": True},
+            )
+
+    def test_public_page_follows_saved_section_order(self):
+        self._set_order("skills", "about")
+
+        response = self.client.get(
+            reverse("portfolios:public_detail", args=[self.portfolio.slug])
+        )
+        html = response.content.decode()
+
+        self.assertLess(html.index("Technical Skills"), html.index("About Me"))
+
+    def test_public_page_hides_hidden_sections(self):
+        self._set_order("about", "skills")
+        PortfolioSection.objects.filter(
+            portfolio=self.portfolio,
+            section_type="skills",
+        ).update(is_visible=False)
+
+        response = self.client.get(
+            reverse("portfolios:public_detail", args=[self.portfolio.slug])
+        )
+
+        self.assertContains(response, "About Me")
+        self.assertNotContains(response, "Technical Skills")
+
+    def test_public_page_works_without_saved_sections(self):
+        response = self.client.get(
+            reverse("portfolios:public_detail", args=[self.portfolio.slug])
+        )
+
+        self.assertContains(response, "About Me")
+        self.assertContains(response, "Technical Skills")
+        self.assertEqual(PortfolioSection.objects.count(), 0)
+
+    def test_resume_preview_follows_order_and_visibility(self):
+        self._set_order("skills", "about")
+        PortfolioSection.objects.filter(
+            portfolio=self.portfolio,
+            section_type="education",
+        ).delete()
+        self.client.login(
+            email="layout@example.com",
+            password="StrongPass123!",
+        )
+
+        response = self.client.get(reverse("resumes:preview"))
+        html = response.content.decode()
+        self.assertLess(
+            html.index("<h2>Skills</h2>"),
+            html.index("<h2>Professional Summary</h2>"),
+        )
+
+        PortfolioSection.objects.filter(
+            portfolio=self.portfolio,
+            section_type="skills",
+        ).update(is_visible=False)
+        response = self.client.get(reverse("resumes:preview"))
+        self.assertNotContains(response, "<h2>Skills</h2>")
+
+    def test_toggle_requires_login(self):
+        self._set_order("about")
+        section = PortfolioSection.objects.get(section_type="about")
+
+        response = self.client.post(
+            reverse("portfolios:section_toggle", args=[section.pk])
+        )
+
+        self.assertEqual(response.status_code, 302)
+        section.refresh_from_db()
+        self.assertTrue(section.is_visible)
+
+    def test_owner_can_toggle_visibility(self):
+        self._set_order("about")
+        section = PortfolioSection.objects.get(section_type="about")
+        self.client.login(
+            email="layout@example.com",
+            password="StrongPass123!",
+        )
+
+        self.client.post(
+            reverse("portfolios:section_toggle", args=[section.pk])
+        )
+        section.refresh_from_db()
+        self.assertFalse(section.is_visible)
+
+        self.client.post(
+            reverse("portfolios:section_toggle", args=[section.pk])
+        )
+        section.refresh_from_db()
+        self.assertTrue(section.is_visible)
+
+    def test_user_cannot_toggle_another_users_section(self):
+        self._set_order("about")
+        section = PortfolioSection.objects.get(section_type="about")
+        self.client.login(
+            email="layoutother@example.com",
+            password="StrongPass123!",
+        )
+
+        response = self.client.post(
+            reverse("portfolios:section_toggle", args=[section.pk])
+        )
+
+        self.assertEqual(response.status_code, 404)
+        section.refresh_from_db()
+        self.assertTrue(section.is_visible)
+
+    def test_toggle_rejects_get_requests(self):
+        self._set_order("about")
+        section = PortfolioSection.objects.get(section_type="about")
+        self.client.login(
+            email="layout@example.com",
+            password="StrongPass123!",
+        )
+
+        response = self.client.get(
+            reverse("portfolios:section_toggle", args=[section.pk])
+        )
+
+        self.assertEqual(response.status_code, 405)

@@ -33,13 +33,13 @@
                     ☰ {{ section.get_section_type_display }}
                 </strong>
 
-                <span>
-                    {% if section.is_visible %}
-                        Visible
-                    {% else %}
-                        Hidden
-                    {% endif %}
-                </span>
+                <form method="post"
+                      action="{% url 'portfolios:section_toggle' section.id %}">
+                    {% csrf_token %}
+                    <button type="submit">
+                        {% if section.is_visible %}Visible (click to hide){% else %}Hidden (click to show){% endif %}
+                    </button>
+                </form>
             </li>
         {% empty %}
             <li>No sections available.</li>

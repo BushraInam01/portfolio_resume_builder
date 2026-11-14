@@ -1,0 +1,11 @@
+    <!-- Professional Summary -->
+
+    {% if portfolio.bio %}
+        <section class="resume-section">
+
+            <h2>Professional Summary</h2>
+
+            <p>{{ portfolio.bio|linebreaksbr }}</p>
+
+        </section>
+    {% endif %}

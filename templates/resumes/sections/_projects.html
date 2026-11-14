@@ -1,0 +1,38 @@
+    <!-- Projects -->
+
+    {% if portfolio.projects.exists %}
+        <section class="resume-section">
+
+            <h2>Projects</h2>
+
+            {% for project in portfolio.projects.all %}
+
+                <div class="resume-item">
+
+                    <h3>{{ project.title }}</h3>
+
+                    <p>{{ project.description|linebreaksbr }}</p>
+
+                    {% if project.technologies %}
+                        <p>
+                            <strong>Technologies:</strong>
+                            {{ project.technologies }}
+                        </p>
+                    {% endif %}
+
+                    {% if project.source_code_url %}
+                        <a href="{{ project.source_code_url }}">
+                            Source Code
+                        </a>
+                    {% endif %}
+
+                    {% if project.project_url %}
+                        | <a href="{{ project.project_url }}">Live Project</a>
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        </section>
+    {% endif %}

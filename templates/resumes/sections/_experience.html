@@ -1,0 +1,45 @@
+    <!-- Work Experience -->
+
+    {% if portfolio.experiences.exists %}
+        <section class="resume-section">
+
+            <h2>Work Experience</h2>
+
+            {% for experience in portfolio.experiences.all %}
+
+                <div class="resume-item">
+
+                    <h3>{{ experience.position }}</h3>
+
+                    <p>
+                        {{ experience.company }}
+
+                        {% if experience.location %}
+                            - {{ experience.location }}
+                        {% endif %}
+                    </p>
+
+                    <div class="resume-date">
+
+                        {{ experience.start_date|date:"M Y" }} -
+
+                        {% if experience.is_current %}
+                            Present
+                        {% elif experience.end_date %}
+                            {{ experience.end_date|date:"M Y" }}
+                        {% else %}
+                            Not specified
+                        {% endif %}
+
+                    </div>
+
+                    {% if experience.description %}
+                        <p>{{ experience.description|linebreaksbr }}</p>
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        </section>
+    {% endif %}

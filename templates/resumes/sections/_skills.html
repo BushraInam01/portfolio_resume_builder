@@ -1,0 +1,21 @@
+    <!-- Skills -->
+
+    {% if portfolio.skills.exists %}
+        <section class="resume-section">
+
+            <h2>Skills</h2>
+
+            <div class="skill-list">
+
+                {% for skill in portfolio.skills.all %}
+
+                    <span class="skill-item">
+                        {{ skill.name }} - {{ skill.get_proficiency_display }}
+                    </span>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+    {% endif %}

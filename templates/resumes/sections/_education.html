@@ -1,0 +1,45 @@
+    <!-- Education -->
+
+    {% if portfolio.educations.exists %}
+        <section class="resume-section">
+
+            <h2>Education</h2>
+
+            {% for education in portfolio.educations.all %}
+
+                <div class="resume-item">
+
+                    <h3>{{ education.degree }}</h3>
+
+                    <p>
+                        {{ education.institution }}
+
+                        {% if education.field_of_study %}
+                            - {{ education.field_of_study }}
+                        {% endif %}
+                    </p>
+
+                    <div class="resume-date">
+
+                        {{ education.start_date|date:"M Y" }} -
+
+                        {% if education.is_current %}
+                            Present
+                        {% elif education.end_date %}
+                            {{ education.end_date|date:"M Y" }}
+                        {% else %}
+                            Not specified
+                        {% endif %}
+
+                    </div>
+
+                    {% if education.description %}
+                        <p>{{ education.description|linebreaksbr }}</p>
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        </section>
+    {% endif %}

@@ -59,9 +59,14 @@ class ResumePreviewView(LoginRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(
-            Portfolio,
+            Portfolio.objects.prefetch_related("sections"),
             user=self.request.user,
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["sections"] = self.object.get_section_layout()
+        return context
 
 
 class ResumePDFDownloadView(LoginRequiredMixin, View):
@@ -74,13 +79,17 @@ class ResumePDFDownloadView(LoginRequiredMixin, View):
                 "experiences",
                 "projects",
                 "skills",
+                "sections",
             ),
             user=request.user,
         )
 
         html_string = render_to_string(
             "resumes/preview.html",
-            {"portfolio": portfolio},
+            {
+                "portfolio": portfolio,
+                "sections": portfolio.get_section_layout(),
+            },
             request=request,
         )
 

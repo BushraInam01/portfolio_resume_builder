@@ -1,0 +1,34 @@
+    <!-- Skills -->
+    <section class="public-section">
+        <h2>Technical Skills</h2>
+
+        <div class="public-section-content">
+            <div class="public-skills-grid">
+                {% for skill in portfolio.skills.all %}
+                    <div class="public-skill-card">
+                        <h3>{{ skill.name }}</h3>
+
+                        <p class="public-item-meta">
+                            {{ skill.get_proficiency_display }}
+                        </p>
+
+                        <p class="public-endorsements">
+                            {{ skill.endorsements.count }} Endorsements
+                        </p>
+
+                        {% if can_endorse %}
+                            <form method="post"
+                                  action="{% url 'endorsements:endorse_skill' skill.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="public-endorse-button">
+                                    Endorse Skill
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p class="public-empty">No skills added.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>

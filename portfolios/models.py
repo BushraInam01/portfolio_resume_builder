@@ -105,6 +105,35 @@ class Portfolio(models.Model):
     def __str__(self):
         return f"{self.title} - {self.user.email}"
 
+    def get_section_layout(self, visible_only=True):
+        """Return sections in the owner's chosen order.
+
+        Section types without a saved row yet fall back to their default
+        position and are visible, so public pages never need to write to
+        the database just to render.
+        """
+        saved = {s.section_type: s for s in self.sections.all()}
+        layout = []
+
+        for default_order, (section_type, _) in enumerate(
+            PortfolioSection.SectionType.choices
+        ):
+            layout.append(
+                saved.get(section_type)
+                or PortfolioSection(
+                    portfolio=self,
+                    section_type=section_type,
+                    sort_order=default_order,
+                )
+            )
+
+        layout.sort(key=lambda s: s.sort_order)
+
+        if visible_only:
+            layout = [s for s in layout if s.is_visible]
+
+        return layout
+
 
 class PortfolioSection(models.Model):
     """Manage portfolio section visibility and ordering."""

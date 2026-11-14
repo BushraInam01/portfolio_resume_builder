@@ -1,0 +1,54 @@
+    <!-- Projects -->
+    <section class="public-section">
+        <h2>Projects</h2>
+
+        <div class="public-section-content">
+            {% for project in portfolio.projects.all %}
+                <div class="public-project-card">
+                    <h3>{{ project.title }}</h3>
+
+                    {% if project.description %}
+                        <p>{{ project.description }}</p>
+                    {% endif %}
+
+                    {% if project.technologies %}
+                        <p class="public-item-meta">
+                            <strong>Technologies:</strong>
+                            {{ project.technologies }}
+                        </p>
+                    {% endif %}
+
+                    {% if project.start_date or project.end_date %}
+                        <p class="public-item-meta">
+                            <strong>Duration:</strong>
+                            {% if project.start_date %}
+                                {{ project.start_date|date:"M Y" }}
+                            {% endif %}
+                            -
+                            {% if project.end_date %}
+                                {{ project.end_date|date:"M Y" }}
+                            {% else %}
+                                Present
+                            {% endif %}
+                        </p>
+                    {% endif %}
+
+                    <div class="public-project-links">
+                        {% if project.project_url %}
+                            <a href="{{ project.project_url }}" target="_blank" rel="noopener noreferrer">
+                                View Project ↗
+                            </a>
+                        {% endif %}
+
+                        {% if project.source_code_url %}
+                            <a href="{{ project.source_code_url }}" target="_blank" rel="noopener noreferrer">
+                                Source Code ↗
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="public-empty">No projects added.</p>
+            {% endfor %}
+        </div>
+    </section>

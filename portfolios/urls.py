@@ -23,6 +23,7 @@ from .views import (
     SkillDeleteView,
     SectionOrderView,
     SectionReorderView,
+    SectionToggleVisibilityView,
     PublicPortfolioDetailView,
 )
 
@@ -50,5 +51,6 @@ urlpatterns = [
     path("skills/<int:pk>/delete/", SkillDeleteView.as_view(), name="skill_delete"),
     path("sections/order/", SectionOrderView.as_view(), name="section_order"),
     path("sections/reorder/", SectionReorderView.as_view(), name="section_reorder"),
+    path("sections/<int:pk>/toggle/", SectionToggleVisibilityView.as_view(), name="section_toggle"),
     path("public/<slug:slug>/", PublicPortfolioDetailView.as_view(), name="public_detail"),
 ]

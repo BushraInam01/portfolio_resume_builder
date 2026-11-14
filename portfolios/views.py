@@ -449,11 +449,17 @@ class SectionReorderView(LoginRequiredMixin, View):
                 for section in sections
             }
 
+            ordered_sections = []
+            for position, section_id in enumerate(section_ids):
+                section = sections_by_id[section_id]
+                section.sort_order = position
+                ordered_sections.append(section)
+
             with transaction.atomic():
-                for position, section_id in enumerate(section_ids):
-                    section = sections_by_id[section_id]
-                    section.sort_order = position
-                    section.save(update_fields=["sort_order"])
+                PortfolioSection.objects.bulk_update(
+                    ordered_sections,
+                    ["sort_order"],
+                )
 
             return JsonResponse({
                 "success": True,
@@ -465,6 +471,23 @@ class SectionReorderView(LoginRequiredMixin, View):
                 {"error": "Invalid request data."},
                 status=400,
             )
+
+
+class SectionToggleVisibilityView(LoginRequiredMixin, View):
+    """Show or hide one of the logged-in user's portfolio sections."""
+
+    login_url = reverse_lazy("accounts:login")
+
+    def post(self, request, pk, *args, **kwargs):
+        section = get_object_or_404(
+            PortfolioSection,
+            pk=pk,
+            portfolio__user=request.user,
+        )
+        section.is_visible = not section.is_visible
+        section.save(update_fields=["is_visible"])
+
+        return redirect("portfolios:section_order")
 
 
 class PublicPortfolioDetailView(DetailView):
@@ -484,6 +507,7 @@ class PublicPortfolioDetailView(DetailView):
             "experiences",
             "projects",
             "skills__endorsements",
+            "sections",
         )
 
     def get_object(self, queryset=None):
@@ -522,5 +546,6 @@ class PublicPortfolioDetailView(DetailView):
         context["can_endorse"] = (
             can_endorse and portfolio.allow_endorsements
         )
+        context["sections"] = portfolio.get_section_layout()
 
         return context

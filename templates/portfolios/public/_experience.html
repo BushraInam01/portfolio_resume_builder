@@ -1,0 +1,44 @@
+    <!-- Experience -->
+    <section class="public-section">
+        <h2>Work Experience</h2>
+
+        <div class="public-section-content">
+            {% for experience in portfolio.experiences.all %}
+                <div class="public-item">
+                    <div class="public-item-accent"></div>
+
+                    <div class="public-item-details">
+                        <h3>{{ experience.position }}</h3>
+                        <p class="public-item-subtitle">{{ experience.company }}</p>
+
+                        {% if experience.employment_type %}
+                            <p class="public-item-meta">
+                                {{ experience.get_employment_type_display }}
+                            </p>
+                        {% endif %}
+
+                        {% if experience.location %}
+                            <p class="public-item-meta">{{ experience.location }}</p>
+                        {% endif %}
+
+                        <p class="public-item-meta">
+                            {{ experience.start_date|date:"M Y" }} -
+                            {% if experience.is_current %}
+                                Present
+                            {% elif experience.end_date %}
+                                {{ experience.end_date|date:"M Y" }}
+                            {% else %}
+                                Not specified
+                            {% endif %}
+                        </p>
+
+                        {% if experience.description %}
+                            <p>{{ experience.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="public-empty">No experience information added.</p>
+            {% endfor %}
+        </div>
+    </section>
