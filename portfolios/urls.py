@@ -1,4 +1,3 @@
-
 from django.urls import path
 
 from .views import (
@@ -23,6 +22,7 @@ from .views import (
     SkillDeleteView,
     SectionOrderView,
     SectionReorderView,
+    SectionVisibilityView,
     PublicPortfolioDetailView,
 )
 
@@ -32,23 +32,30 @@ urlpatterns = [
     path("dashboard/", PortfolioDashboardView.as_view(), name="dashboard"),
     path("create/", PortfolioCreateView.as_view(), name="portfolio_create"),
     path("edit/", PortfolioUpdateView.as_view(), name="portfolio_update"),
+
     path("education/", EducationListView.as_view(), name="education_list"),
     path("education/add/", EducationCreateView.as_view(), name="education_create"),
     path("education/<int:pk>/edit/", EducationUpdateView.as_view(), name="education_update"),
     path("education/<int:pk>/delete/", EducationDeleteView.as_view(), name="education_delete"),
+
     path("experience/", ExperienceListView.as_view(), name="experience_list"),
     path("experience/add/", ExperienceCreateView.as_view(), name="experience_create"),
     path("experience/<int:pk>/edit/", ExperienceUpdateView.as_view(), name="experience_update"),
     path("experience/<int:pk>/delete/", ExperienceDeleteView.as_view(), name="experience_delete"),
+
     path("projects/", ProjectListView.as_view(), name="project_list"),
     path("projects/add/", ProjectCreateView.as_view(), name="project_create"),
     path("projects/<int:pk>/edit/", ProjectUpdateView.as_view(), name="project_update"),
     path("projects/<int:pk>/delete/", ProjectDeleteView.as_view(), name="project_delete"),
+
     path("skills/", SkillListView.as_view(), name="skill_list"),
     path("skills/add/", SkillCreateView.as_view(), name="skill_create"),
     path("skills/<int:pk>/edit/", SkillUpdateView.as_view(), name="skill_update"),
     path("skills/<int:pk>/delete/", SkillDeleteView.as_view(), name="skill_delete"),
+
     path("sections/order/", SectionOrderView.as_view(), name="section_order"),
     path("sections/reorder/", SectionReorderView.as_view(), name="section_reorder"),
+    path("sections/<int:pk>/visibility/", SectionVisibilityView.as_view(), name="section_visibility"),
+
     path("public/<slug:slug>/", PublicPortfolioDetailView.as_view(), name="public_detail"),
 ]

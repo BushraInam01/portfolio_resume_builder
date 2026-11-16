@@ -1,5 +1,6 @@
 import json
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.db.models import F, Q
@@ -467,6 +468,40 @@ class SectionReorderView(LoginRequiredMixin, View):
             )
 
 
+class SectionVisibilityView(LoginRequiredMixin, View):
+    """Allow users to show or hide only their own portfolio sections."""
+
+    login_url = reverse_lazy("accounts:login")
+
+    def post(self, request, *args, **kwargs):
+        section = get_object_or_404(
+            PortfolioSection,
+            pk=kwargs["pk"],
+            portfolio__user=request.user,
+        )
+
+        visibility = request.POST.get("is_visible")
+
+        if visibility not in ("true", "false"):
+            messages.error(
+                request,
+                "Invalid visibility selection.",
+            )
+            return redirect("portfolios:section_order")
+
+        section.is_visible = visibility == "true"
+        section.save(update_fields=["is_visible"])
+
+        status = "shown" if section.is_visible else "hidden"
+
+        messages.success(
+            request,
+            f"{section.get_section_type_display()} section is now {status}.",
+        )
+
+        return redirect("portfolios:section_order")
+
+
 class PublicPortfolioDetailView(DetailView):
     """Display a portfolio publicly using its unique slug."""
 
@@ -480,27 +515,35 @@ class PublicPortfolioDetailView(DetailView):
         return Portfolio.objects.filter(
             is_public=True
         ).prefetch_related(
+            "sections",
             "educations",
             "experiences",
             "projects",
             "skills__endorsements",
         )
 
+
     def get_object(self, queryset=None):
         portfolio = super().get_object(queryset)
 
-        Portfolio.objects.filter(
-            pk=portfolio.pk,
-            is_public=True,
-        ).update(
-            view_count=F("view_count") + 1
-        )
+        # Do not count the portfolio owner's own visits.
+        if (
+            not self.request.user.is_authenticated
+            or self.request.user != portfolio.user
+        ):
+            Portfolio.objects.filter(
+                pk=portfolio.pk,
+                is_public=True,
+            ).update(
+                view_count=F("view_count") + 1
+            )
 
-        portfolio.refresh_from_db(
-            fields=["view_count"]
-        )
+            portfolio.refresh_from_db(
+                fields=["view_count"]
+            )
 
         return portfolio
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

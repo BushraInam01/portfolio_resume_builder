@@ -8,15 +8,12 @@
 <style>
     .resume {
         --accent: {{ portfolio.accent_color }};
-
         background: white;
         padding: 40px;
         border-radius: 10px;
         box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
         border-top: 7px solid var(--accent);
     }
-
-    /* Resume Header */
 
     .resume-header {
         border-bottom: 2px solid var(--accent);
@@ -40,8 +37,6 @@
         font-size: 14px;
         line-height: 1.8;
     }
-
-    /* Resume Sections */
 
     .resume-section {
         margin-bottom: 28px;
@@ -75,8 +70,6 @@
         font-size: 13px;
     }
 
-    /* Skills */
-
     .skill-list {
         display: flex;
         flex-wrap: wrap;
@@ -92,8 +85,6 @@
         font-size: 14px;
     }
 
-    /* Resume Links */
-
     .resume a {
         color: var(--accent);
         background: transparent;
@@ -101,11 +92,8 @@
         text-decoration: underline;
     }
 
-    /* Action Buttons */
-
     .resume-actions {
         --accent: {{ portfolio.accent_color }};
-
         display: flex;
         gap: 12px;
         margin-bottom: 20px;
@@ -136,13 +124,9 @@
         color: #ffffff !important;
     }
 
-    /* Classic Theme */
-
     .theme-classic .resume-header {
         text-align: center;
     }
-
-    /* Modern Theme */
 
     .theme-modern .resume-header {
         border-bottom: none;
@@ -155,8 +139,6 @@
         border-left: 4px solid var(--accent);
         padding-left: 10px;
     }
-
-    /* Minimal Theme */
 
     .theme-minimal {
         box-shadow: none;
@@ -174,8 +156,6 @@
         letter-spacing: 1px;
     }
 
-    /* Professional Theme */
-
     .theme-professional .resume-header {
         background: #f8fafc;
         padding: 25px;
@@ -188,8 +168,6 @@
         border-bottom: none;
         border-radius: 4px;
     }
-
-    /* Responsive Design */
 
     @media (max-width: 600px) {
         .resume {
@@ -206,8 +184,6 @@
             font-size: 13px;
         }
     }
-
-    /* Print Design */
 
     @media print {
         body {
@@ -243,8 +219,6 @@
     }
 </style>
 
-<!-- Action Buttons -->
-
 <div class="resume-actions">
 
     <a href="{% url 'resumes:customize' %}">
@@ -265,8 +239,6 @@
 
 </div>
 
-<!-- Resume Content -->
-
 <div class="resume theme-{{ portfolio.resume_theme }}">
 
     <!-- Personal Information -->
@@ -279,198 +251,216 @@
             {{ portfolio.professional_title|default:"Professional Title" }}
         </h3>
 
-        <div class="contact-info">
-
-            {% if portfolio.location %}
-                {{ portfolio.location }}
-            {% endif %}
-
-            {% if portfolio.phone %}
-                | {{ portfolio.phone }}
-            {% endif %}
-
-            {% if portfolio.website %}
-                <br>
-                <a href="{{ portfolio.website }}">{{ portfolio.website }}</a>
-            {% endif %}
-
-            {% if portfolio.linkedin_url %}
-                <br>
-                <a href="{{ portfolio.linkedin_url }}">LinkedIn</a>
-            {% endif %}
-
-            {% if portfolio.github_url %}
-                | <a href="{{ portfolio.github_url }}">GitHub</a>
-            {% endif %}
-
-        </div>
-
     </div>
 
-    <!-- Professional Summary -->
+    <!-- Dynamic Portfolio Sections -->
 
-    {% if portfolio.bio %}
-        <section class="resume-section">
+    {% for section in portfolio.sections.all %}
 
-            <h2>Professional Summary</h2>
+        {% if section.is_visible %}
 
-            <p>{{ portfolio.bio|linebreaksbr }}</p>
+            {% if section.section_type == "about" and portfolio.bio %}
 
-        </section>
-    {% endif %}
+                <section class="resume-section">
 
-    <!-- Education -->
+                    <h2>Professional Summary</h2>
 
-    {% if portfolio.educations.exists %}
-        <section class="resume-section">
+                    <p>{{ portfolio.bio|linebreaksbr }}</p>
 
-            <h2>Education</h2>
+                </section>
 
-            {% for education in portfolio.educations.all %}
+            {% elif section.section_type == "contact" %}
 
-                <div class="resume-item">
+                {% if portfolio.location or portfolio.phone or portfolio.website or portfolio.linkedin_url or portfolio.github_url %}
 
-                    <h3>{{ education.degree }}</h3>
+                    <section class="resume-section">
 
-                    <p>
-                        {{ education.institution }}
+                        <h2>Contact</h2>
 
-                        {% if education.field_of_study %}
-                            - {{ education.field_of_study }}
-                        {% endif %}
-                    </p>
+                        <div class="contact-info">
 
-                    <div class="resume-date">
+                            {% if portfolio.location %}
+                                <div>{{ portfolio.location }}</div>
+                            {% endif %}
 
-                        {{ education.start_date|date:"M Y" }} -
+                            {% if portfolio.phone %}
+                                <div>{{ portfolio.phone }}</div>
+                            {% endif %}
 
-                        {% if education.is_current %}
-                            Present
-                        {% elif education.end_date %}
-                            {{ education.end_date|date:"M Y" }}
-                        {% else %}
-                            Not specified
-                        {% endif %}
+                            {% if portfolio.website %}
+                                <div>
+                                    <a href="{{ portfolio.website }}">{{ portfolio.website }}</a>
+                                </div>
+                            {% endif %}
+
+                            {% if portfolio.linkedin_url %}
+                                <div>
+                                    <a href="{{ portfolio.linkedin_url }}">LinkedIn</a>
+                                </div>
+                            {% endif %}
+
+                            {% if portfolio.github_url %}
+                                <div>
+                                    <a href="{{ portfolio.github_url }}">GitHub</a>
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    </section>
+
+                {% endif %}
+
+            {% elif section.section_type == "education" and portfolio.educations.exists %}
+
+                <section class="resume-section">
+
+                    <h2>Education</h2>
+
+                    {% for education in portfolio.educations.all %}
+
+                        <div class="resume-item">
+
+                            <h3>{{ education.degree }}</h3>
+
+                            <p>
+                                {{ education.institution }}
+
+                                {% if education.field_of_study %}
+                                    - {{ education.field_of_study }}
+                                {% endif %}
+                            </p>
+
+                            <div class="resume-date">
+
+                                {{ education.start_date|date:"M Y" }} -
+
+                                {% if education.is_current %}
+                                    Present
+                                {% elif education.end_date %}
+                                    {{ education.end_date|date:"M Y" }}
+                                {% else %}
+                                    Not specified
+                                {% endif %}
+
+                            </div>
+
+                            {% if education.description %}
+                                <p>{{ education.description|linebreaksbr }}</p>
+                            {% endif %}
+
+                        </div>
+
+                    {% endfor %}
+
+                </section>
+
+            {% elif section.section_type == "experience" and portfolio.experiences.exists %}
+
+                <section class="resume-section">
+
+                    <h2>Work Experience</h2>
+
+                    {% for experience in portfolio.experiences.all %}
+
+                        <div class="resume-item">
+
+                            <h3>{{ experience.position }}</h3>
+
+                            <p>
+                                {{ experience.company }}
+
+                                {% if experience.location %}
+                                    - {{ experience.location }}
+                                {% endif %}
+                            </p>
+
+                            <div class="resume-date">
+
+                                {{ experience.start_date|date:"M Y" }} -
+
+                                {% if experience.is_current %}
+                                    Present
+                                {% elif experience.end_date %}
+                                    {{ experience.end_date|date:"M Y" }}
+                                {% else %}
+                                    Not specified
+                                {% endif %}
+
+                            </div>
+
+                            {% if experience.description %}
+                                <p>{{ experience.description|linebreaksbr }}</p>
+                            {% endif %}
+
+                        </div>
+
+                    {% endfor %}
+
+                </section>
+
+            {% elif section.section_type == "projects" and portfolio.projects.exists %}
+
+                <section class="resume-section">
+
+                    <h2>Projects</h2>
+
+                    {% for project in portfolio.projects.all %}
+
+                        <div class="resume-item">
+
+                            <h3>{{ project.title }}</h3>
+
+                            <p>{{ project.description|linebreaksbr }}</p>
+
+                            {% if project.technologies %}
+                                <p>
+                                    <strong>Technologies:</strong>
+                                    {{ project.technologies }}
+                                </p>
+                            {% endif %}
+
+                            {% if project.source_code_url %}
+                                <a href="{{ project.source_code_url }}">
+                                    Source Code
+                                </a>
+                            {% endif %}
+
+                            {% if project.project_url %}
+                                | <a href="{{ project.project_url }}">Live Project</a>
+                            {% endif %}
+
+                        </div>
+
+                    {% endfor %}
+
+                </section>
+
+            {% elif section.section_type == "skills" and portfolio.skills.exists %}
+
+                <section class="resume-section">
+
+                    <h2>Skills</h2>
+
+                    <div class="skill-list">
+
+                        {% for skill in portfolio.skills.all %}
+
+                            <span class="skill-item">
+                                {{ skill.name }} - {{ skill.get_proficiency_display }}
+                            </span>
+
+                        {% endfor %}
 
                     </div>
 
-                    {% if education.description %}
-                        <p>{{ education.description|linebreaksbr }}</p>
-                    {% endif %}
+                </section>
 
-                </div>
+            {% endif %}
 
-            {% endfor %}
+        {% endif %}
 
-        </section>
-    {% endif %}
-
-    <!-- Work Experience -->
-
-    {% if portfolio.experiences.exists %}
-        <section class="resume-section">
-
-            <h2>Work Experience</h2>
-
-            {% for experience in portfolio.experiences.all %}
-
-                <div class="resume-item">
-
-                    <h3>{{ experience.position }}</h3>
-
-                    <p>
-                        {{ experience.company }}
-
-                        {% if experience.location %}
-                            - {{ experience.location }}
-                        {% endif %}
-                    </p>
-
-                    <div class="resume-date">
-
-                        {{ experience.start_date|date:"M Y" }} -
-
-                        {% if experience.is_current %}
-                            Present
-                        {% elif experience.end_date %}
-                            {{ experience.end_date|date:"M Y" }}
-                        {% else %}
-                            Not specified
-                        {% endif %}
-
-                    </div>
-
-                    {% if experience.description %}
-                        <p>{{ experience.description|linebreaksbr }}</p>
-                    {% endif %}
-
-                </div>
-
-            {% endfor %}
-
-        </section>
-    {% endif %}
-
-    <!-- Projects -->
-
-    {% if portfolio.projects.exists %}
-        <section class="resume-section">
-
-            <h2>Projects</h2>
-
-            {% for project in portfolio.projects.all %}
-
-                <div class="resume-item">
-
-                    <h3>{{ project.title }}</h3>
-
-                    <p>{{ project.description|linebreaksbr }}</p>
-
-                    {% if project.technologies %}
-                        <p>
-                            <strong>Technologies:</strong>
-                            {{ project.technologies }}
-                        </p>
-                    {% endif %}
-
-                    {% if project.source_code_url %}
-                        <a href="{{ project.source_code_url }}">
-                            Source Code
-                        </a>
-                    {% endif %}
-
-                    {% if project.project_url %}
-                        | <a href="{{ project.project_url }}">Live Project</a>
-                    {% endif %}
-
-                </div>
-
-            {% endfor %}
-
-        </section>
-    {% endif %}
-
-    <!-- Skills -->
-
-    {% if portfolio.skills.exists %}
-        <section class="resume-section">
-
-            <h2>Skills</h2>
-
-            <div class="skill-list">
-
-                {% for skill in portfolio.skills.all %}
-
-                    <span class="skill-item">
-                        {{ skill.name }} - {{ skill.get_proficiency_display }}
-                    </span>
-
-                {% endfor %}
-
-            </div>
-
-        </section>
-    {% endif %}
+    {% endfor %}
 
 </div>
 

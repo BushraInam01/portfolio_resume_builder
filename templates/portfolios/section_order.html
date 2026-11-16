@@ -9,6 +9,7 @@
     <h1>Arrange Portfolio Sections</h1>
 
     <p>Drag and drop sections to change their display order.</p>
+    <p>Use the button to show or hide a section on your public portfolio and resume.</p>
 
     <form id="csrf-form" style="display: none;">
         {% csrf_token %}
@@ -27,19 +28,64 @@
                     cursor: grab;
                     display: flex;
                     justify-content: space-between;
+                    align-items: center;
+                    gap: 15px;
+                    flex-wrap: wrap;
                 "
             >
                 <strong>
                     ☰ {{ section.get_section_type_display }}
                 </strong>
 
-                <span>
-                    {% if section.is_visible %}
-                        Visible
-                    {% else %}
-                        Hidden
-                    {% endif %}
-                </span>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span>
+                        {% if section.is_visible %}
+                            <span style="color: green;">Visible</span>
+                        {% else %}
+                            <span style="color: #dc2626;">Hidden</span>
+                        {% endif %}
+                    </span>
+
+                    <form
+                        method="post"
+                        action="{% url 'portfolios:section_visibility' section.pk %}"
+                        style="display: inline;"
+                    >
+                        {% csrf_token %}
+
+                        {% if section.is_visible %}
+                            <input type="hidden" name="is_visible" value="false">
+                            <button
+                                type="submit"
+                                style="
+                                    padding: 7px 14px;
+                                    background: #dc2626;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                "
+                            >
+                                Hide
+                            </button>
+                        {% else %}
+                            <input type="hidden" name="is_visible" value="true">
+                            <button
+                                type="submit"
+                                style="
+                                    padding: 7px 14px;
+                                    background: #16a34a;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                "
+                            >
+                                Show
+                            </button>
+                        {% endif %}
+                    </form>
+                </div>
             </li>
         {% empty %}
             <li>No sections available.</li>

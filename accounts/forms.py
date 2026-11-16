@@ -112,3 +112,7 @@ class EmailAuthenticationForm(AuthenticationForm):
             }
         ),
     )
+
+    def clean_username(self):
+        email = self.cleaned_data.get("username", "")
+        return email.strip().lower()

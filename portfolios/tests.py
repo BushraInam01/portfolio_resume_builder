@@ -978,7 +978,7 @@ class SkillViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Python")
 
-    
+
     def test_user_cannot_view_other_users_skills(self):
         Skill.objects.create(
             portfolio=self.other_portfolio,
@@ -1392,8 +1392,25 @@ class PortfolioViewCounterTests(TestCase):
 
         self.assertEqual(self.portfolio.view_count, 0)
 
-    def test_owner_visit_increments_view_count(self):
+
+    def test_owner_visit_does_not_increment_view_count(self):
         self.client.force_login(self.user)
+
+        response = self.client.get(self.public_url)
+
+        self.assertEqual(response.status_code, 200)
+
+        self.portfolio.refresh_from_db()
+
+        self.assertEqual(self.portfolio.view_count, 0)
+
+    def test_other_authenticated_user_increments_view_count(self):
+        other_user = User.objects.create_user(
+            email="othervisitor@example.com",
+            password="StrongPass123!",
+        )
+
+        self.client.force_login(other_user)
 
         response = self.client.get(self.public_url)
 
