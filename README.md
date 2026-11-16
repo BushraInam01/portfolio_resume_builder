@@ -9,9 +9,11 @@ Users can build their professional profiles, manage education and work experienc
 ### Authentication
 - Custom email-based user authentication
 - User registration and login
+- Case-insensitive email login
 - Logout functionality
 - Password change and password reset
 - Protected user dashboards
+- Secure access to user-specific resources
 
 ### Portfolio Management
 - Create and manage personal portfolios
@@ -19,8 +21,9 @@ Users can build their professional profiles, manage education and work experienc
 - Manage work experience
 - Showcase personal and professional projects
 - Add and manage technical skills
-- Public portfolio with a custom slug
+- Public portfolio with a custom URL slug
 - Control portfolio visibility
+- Owner-specific portfolio management
 
 ### Portfolio Customization
 - Multiple resume themes:
@@ -30,7 +33,9 @@ Users can build their professional profiles, manage education and work experienc
   - Professional
 - Custom accent color selection
 - Drag-and-drop portfolio section ordering
-- Show or hide portfolio sections
+- Show or hide individual portfolio sections
+- Section ordering and visibility reflected in public portfolios
+- Section ordering and visibility reflected in resume previews and PDF exports
 
 ### Connections & Skill Endorsements
 - Send and manage connection requests
@@ -38,6 +43,7 @@ Users can build their professional profiles, manage education and work experienc
 - Discover public portfolios
 - Endorse skills of accepted connections
 - Prevent duplicate endorsements
+- Validate connection and endorsement permissions
 
 ### Resume & PDF Export
 - Resume preview
@@ -45,10 +51,12 @@ Users can build their professional profiles, manage education and work experienc
 - Customizable resume appearance
 - Download resume as PDF
 - Print-friendly resume layout
+- Consistent section ordering and visibility in resume output
 
 ### Portfolio Analytics
 - Portfolio view counter
 - Dashboard analytics
+- Owner visits excluded from portfolio view counts
 
 ## Technologies Used
 
@@ -56,6 +64,7 @@ Users can build their professional profiles, manage education and work experienc
 - Django
 - Django Class-Based Views (CBVs)
 - Django Templates
+- Django Forms
 - SQLite
 - HTML5
 - CSS3
@@ -167,9 +176,9 @@ Run the complete test suite:
 python3 manage.py test
 ```
 
-The project passed **103 tests** during development verification.
+**Latest verification: 111 tests passed successfully.**
 
-Check Django configuration:
+Additional project checks:
 
 ```bash
 python3 manage.py check
@@ -186,9 +195,12 @@ python3 manage.py makemigrations --check --dry-run
 Security considerations implemented in this project include:
 
 - Custom email-based authentication
+- Case-insensitive email login
 - Login-required access to protected views
 - Portfolio ownership validation
+- Owner-scoped data access
 - Connection and endorsement authorization checks
+- Server-side validation of section ordering and visibility
 - CSRF protection
 - Secure session cookie settings
 - Environment-based secret key configuration
@@ -201,5 +213,7 @@ Security considerations implemented in this project include:
 - Production database configuration
 - Deployment and hosting
 - Additional portfolio themes
+
+---
 
 This project is developed for educational and portfolio purposes.
