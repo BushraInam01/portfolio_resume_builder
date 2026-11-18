@@ -2,8 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from portfolios.models import Portfolio
-
+from portfolios.models import Education, Portfolio, PortfolioSection
 
 User = get_user_model()
 
@@ -103,6 +102,29 @@ class ResumeViewsTests(TestCase):
         )
 
     def test_preview_shows_own_portfolio(self):
+        self.portfolio.bio = "Learning Django development."
+        self.portfolio.save(update_fields=["bio"])
+
+        # Create default portfolio sections for this test.
+        for order, (section_type, _) in enumerate(
+            PortfolioSection.SectionType.choices
+        ):
+            PortfolioSection.objects.create(
+                portfolio=self.portfolio,
+                section_type=section_type,
+                sort_order=order,
+                is_visible=True,
+            )
+
+        Education.objects.create(
+            portfolio=self.portfolio,
+            institution="Virtual University of Pakistan",
+            degree="BS Information Technology",
+            field_of_study="Information Technology",
+            start_date="2021-03-24",
+            end_date="2025-03-10",
+        )
+
         self.client.force_login(self.user)
 
         response = self.client.get(
@@ -110,9 +132,25 @@ class ResumeViewsTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+
         self.assertEqual(
             response.context["portfolio"],
             self.portfolio,
+        )
+
+        self.assertContains(
+            response,
+            "Learning Django development.",
+        )
+
+        self.assertContains(
+            response,
+            "BS Information Technology",
+        )
+
+        self.assertContains(
+            response,
+            "Virtual University of Pakistan",
         )
 
     def test_pdf_download_returns_pdf_attachment(self):
@@ -123,6 +161,7 @@ class ResumeViewsTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+
         self.assertEqual(
             response["Content-Type"],
             "application/pdf",

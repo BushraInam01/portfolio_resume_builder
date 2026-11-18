@@ -1,6 +1,8 @@
+import json
+
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth import get_user_model
 
 from .models import (
     Portfolio,
@@ -86,7 +88,7 @@ class PortfolioViewTests(TestCase):
                 "website": "",
                 "linkedin_url": "",
                 "github_url": "",
-                "is_public": False,
+                "is_public": True,
                 "allow_endorsements": True,
             },
         )
@@ -97,6 +99,41 @@ class PortfolioViewTests(TestCase):
 
         self.assertEqual(portfolio.title, "New Portfolio")
         self.assertEqual(portfolio.slug, "new-portfolio")
+
+        sections = PortfolioSection.objects.filter(
+            portfolio=portfolio
+        ).order_by("sort_order")
+
+        self.assertEqual(sections.count(), 6)
+
+        expected_sections = [
+            "about",
+            "education",
+            "experience",
+            "projects",
+            "skills",
+            "contact",
+        ]
+
+        self.assertEqual(
+            list(sections.values_list("section_type", flat=True)),
+            expected_sections,
+        )
+
+        self.assertTrue(
+            all(section.is_visible for section in sections)
+        )
+
+        public_response = self.client.get(
+            reverse(
+                "portfolios:public_detail",
+                kwargs={"slug": portfolio.slug},
+            )
+        )
+
+        self.assertEqual(public_response.status_code, 200)
+        self.assertContains(public_response, "<h2>About Me</h2>")
+        self.assertContains(public_response, "<h2>Education</h2>")
 
     def test_created_portfolio_is_assigned_to_logged_in_user(self):
         self.client.login(
@@ -686,6 +723,7 @@ class ExperienceViewTests(TestCase):
             ).exists()
         )
 
+
 class ProjectViewTests(TestCase):
     """Test project authentication, ownership and CRUD operations."""
 
@@ -918,6 +956,7 @@ class ProjectViewTests(TestCase):
             ).exists()
         )
 
+
 class SkillViewTests(TestCase):
     """Test skill authentication, ownership and CRUD operations."""
 
@@ -978,7 +1017,6 @@ class SkillViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Python")
 
-
     def test_user_cannot_view_other_users_skills(self):
         Skill.objects.create(
             portfolio=self.other_portfolio,
@@ -997,7 +1035,6 @@ class SkillViewTests(TestCase):
             list(response.context["skills"]),
             [self.skill],
         )
-
 
     def test_user_can_add_skill(self):
         response = self.client.post(
@@ -1253,9 +1290,7 @@ class SectionOrderingTests(TestCase):
         response = self.client.post(
             reverse("portfolios:section_reorder"),
             {
-                "section_ids": __import__("json").dumps(
-                    reordered_ids
-                )
+                "section_ids": json.dumps(reordered_ids)
             },
         )
 
@@ -1283,9 +1318,7 @@ class SectionOrderingTests(TestCase):
         response = self.client.post(
             reverse("portfolios:section_reorder"),
             {
-                "section_ids": __import__("json").dumps(
-                    invalid_ids
-                )
+                "section_ids": json.dumps(invalid_ids)
             },
         )
 
@@ -1307,9 +1340,7 @@ class SectionOrderingTests(TestCase):
         response = self.client.post(
             reverse("portfolios:section_reorder"),
             {
-                "section_ids": __import__("json").dumps(
-                    section_ids
-                )
+                "section_ids": json.dumps(section_ids)
             },
         )
 
@@ -1339,6 +1370,66 @@ class SectionOrderingTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+    def test_public_portfolio_renders_reordered_and_visible_sections(self):
+        self.portfolio.is_public = True
+        self.portfolio.bio = "This is my portfolio biography."
+        self.portfolio.save(update_fields=["is_public", "bio"])
+
+        sections = self.create_sections(self.portfolio)
+
+        sections_by_type = {
+            section.section_type: section
+            for section in sections
+        }
+
+        # Move Education before About Me.
+        reordered_ids = [
+            sections_by_type["education"].pk,
+            sections_by_type["about"].pk,
+            sections_by_type["experience"].pk,
+            sections_by_type["projects"].pk,
+            sections_by_type["skills"].pk,
+            sections_by_type["contact"].pk,
+        ]
+
+        reorder_response = self.client.post(
+            reverse("portfolios:section_reorder"),
+            {
+                "section_ids": json.dumps(reordered_ids)
+            },
+        )
+
+        self.assertEqual(reorder_response.status_code, 200)
+
+        # Hide Contact section.
+        visibility_response = self.client.post(
+            reverse(
+                "portfolios:section_visibility",
+                kwargs={"pk": sections_by_type["contact"].pk},
+            ),
+            {"is_visible": "false"},
+        )
+
+        self.assertEqual(visibility_response.status_code, 302)
+
+        # Render the public portfolio.
+        response = self.client.get(
+            reverse(
+                "portfolios:public_detail",
+                kwargs={"slug": self.portfolio.slug},
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        content = response.content.decode()
+
+        education_position = content.index("<h2>Education</h2>")
+        about_position = content.index("<h2>About Me</h2>")
+
+        self.assertLess(education_position, about_position)
+        self.assertNotIn("<h2>Contact Information</h2>", content)
 
 
 class PortfolioViewCounterTests(TestCase):
@@ -1391,7 +1482,6 @@ class PortfolioViewCounterTests(TestCase):
         self.portfolio.refresh_from_db()
 
         self.assertEqual(self.portfolio.view_count, 0)
-
 
     def test_owner_visit_does_not_increment_view_count(self):
         self.client.force_login(self.user)

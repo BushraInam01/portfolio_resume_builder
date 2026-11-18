@@ -51,6 +51,7 @@ class PortfolioDashboardView(LoginRequiredMixin, TemplateView):
         return context
 
 
+
 class PortfolioCreateView(LoginRequiredMixin, CreateView):
     """Allow a user to create their own portfolio."""
 
@@ -75,7 +76,24 @@ class PortfolioCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+
+        with transaction.atomic():
+            response = super().form_valid(form)
+
+            for order, (section_type, _) in enumerate(
+                PortfolioSection.SectionType.choices
+            ):
+                PortfolioSection.objects.get_or_create(
+                    portfolio=self.object,
+                    section_type=section_type,
+                    defaults={
+                        "sort_order": order,
+                        "is_visible": True,
+                    },
+                )
+
+        return response
+
 
 
 class PortfolioUpdateView(LoginRequiredMixin, UpdateView):
