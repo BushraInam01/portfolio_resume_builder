@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from portfolios.models import Education, Portfolio, PortfolioSection
+from portfolios.models import Education, Portfolio
 
 User = get_user_model()
 
@@ -105,17 +105,7 @@ class ResumeViewsTests(TestCase):
         self.portfolio.bio = "Learning Django development."
         self.portfolio.save(update_fields=["bio"])
 
-        # Create default portfolio sections for this test.
-        for order, (section_type, _) in enumerate(
-            PortfolioSection.SectionType.choices
-        ):
-            PortfolioSection.objects.create(
-                portfolio=self.portfolio,
-                section_type=section_type,
-                sort_order=order,
-                is_visible=True,
-            )
-
+        # Default sections are created automatically by the signal.
         Education.objects.create(
             portfolio=self.portfolio,
             institution="Virtual University of Pakistan",

@@ -135,6 +135,39 @@ class PortfolioViewTests(TestCase):
         self.assertContains(public_response, "<h2>About Me</h2>")
         self.assertContains(public_response, "<h2>Education</h2>")
 
+    def test_signal_creates_default_sections_for_direct_portfolio_creation(self):
+        portfolio = Portfolio.objects.create(
+            user=self.other_user,
+            title="Direct Creation Portfolio",
+            slug="direct-creation-portfolio",
+            full_name="Direct Creation User",
+            professional_title="Python Developer",
+        )
+
+        sections = PortfolioSection.objects.filter(
+            portfolio=portfolio
+        ).order_by("sort_order")
+
+        expected_sections = [
+            "about",
+            "education",
+            "experience",
+            "projects",
+            "skills",
+            "contact",
+        ]
+
+        self.assertEqual(sections.count(), 6)
+
+        self.assertEqual(
+            list(sections.values_list("section_type", flat=True)),
+            expected_sections,
+        )
+
+        self.assertTrue(
+            all(section.is_visible for section in sections)
+        )
+
     def test_created_portfolio_is_assigned_to_logged_in_user(self):
         self.client.login(
             email="other@example.com",
@@ -1230,11 +1263,15 @@ class SectionOrderingTests(TestCase):
         for order, (section_type, _) in enumerate(
             PortfolioSection.SectionType.choices
         ):
-            section = PortfolioSection.objects.create(
+            section, _ = PortfolioSection.objects.get_or_create(
                 portfolio=portfolio,
                 section_type=section_type,
-                sort_order=order,
+                defaults={
+                    "sort_order": order,
+                    "is_visible": True,
+                },
             )
+
             sections.append(section)
 
         return sections

@@ -78,21 +78,7 @@ class PortfolioCreateView(LoginRequiredMixin, CreateView):
         form.instance.user = self.request.user
 
         with transaction.atomic():
-            response = super().form_valid(form)
-
-            for order, (section_type, _) in enumerate(
-                PortfolioSection.SectionType.choices
-            ):
-                PortfolioSection.objects.get_or_create(
-                    portfolio=self.object,
-                    section_type=section_type,
-                    defaults={
-                        "sort_order": order,
-                        "is_visible": True,
-                    },
-                )
-
-        return response
+            return super().form_valid(form)
 
 
 
