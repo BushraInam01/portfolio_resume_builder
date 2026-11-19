@@ -1,3 +1,4 @@
+
 # Portfolio & Resume Builder
 
 A Django-based web application that allows users to create, customize, manage, and share professional portfolios and resumes.
@@ -124,13 +125,22 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 5. Install Dependencies
+### 5. Install WeasyPrint System Dependencies (Ubuntu / WSL)
+
+WeasyPrint requires system libraries for PDF generation.
+
+```bash
+sudo apt update
+sudo apt install -y libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 libharfbuzz-subset0
+```
+
+### 6. Install Python Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 6. Configure Environment Variables
+### 7. Configure Environment Variables
 
 Set the Django environment variables before running the project.
 
@@ -146,19 +156,19 @@ Generate a secure secret key using:
 python3 -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
-### 7. Apply Migrations
+### 8. Apply Migrations
 
 ```bash
 python3 manage.py migrate
 ```
 
-### 8. Create a Superuser
+### 9. Create a Superuser
 
 ```bash
 python3 manage.py createsuperuser
 ```
 
-### 9. Run the Development Server
+### 10. Run the Development Server
 
 ```bash
 python3 manage.py runserver
@@ -176,7 +186,7 @@ Run the complete test suite:
 python3 manage.py test
 ```
 
-**Latest verification: 111 tests passed successfully.**
+**Latest verification: 113 tests passed successfully.**
 
 Additional project checks:
 
